@@ -1549,6 +1549,14 @@ function WardenDashboard({ stats, recentActivity, missions, isLoading, refresh }
         onClose={() => setIsScheduleOpen(false)}
       />
 
+      <NoticeboardSheet 
+        isOpen={isNoticeboardOpen}
+        onClose={() => setIsNoticeboardOpen(false)}
+        role="warden"
+        missions={missions}
+        onRefresh={refresh}
+      />
+
       <ComplaintDetailSheet 
         isOpen={isComplaintDetailOpen}
         onClose={() => setIsComplaintDetailOpen(false)}
@@ -1832,12 +1840,12 @@ function StudentDashboard({ stats, studentData, missions, revenueData, recentAct
   const [isLedgerOpen, setIsLedgerOpen] = useState(false);
   
   const expenditureData = revenueData?.length > 0 ? revenueData : [
-    { name: 'Jun', value: 0 },
-    { name: 'Jul', value: 0 },
-    { name: 'Aug', value: 0 },
-    { name: 'Sep', value: 0 },
-    { name: 'Oct', value: 0 },
-    { name: 'Nov', value: 0 },
+    { name: 'Jun', revenue: 0 },
+    { name: 'Jul', revenue: 0 },
+    { name: 'Aug', revenue: 0 },
+    { name: 'Sep', revenue: 0 },
+    { name: 'Oct', revenue: 0 },
+    { name: 'Nov', revenue: 0 },
   ];
 
   const studentStats = [
@@ -2048,7 +2056,7 @@ function StudentDashboard({ stats, studentData, missions, revenueData, recentAct
                    />
                    <Area 
                      type="monotone" 
-                     dataKey="value" 
+                     dataKey="revenue" 
                      stroke="#D4FF3F" 
                      strokeWidth={5} 
                      fillOpacity={1} 

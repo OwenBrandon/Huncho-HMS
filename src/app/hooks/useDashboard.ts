@@ -23,7 +23,7 @@ export function useDashboard(userId?: string) {
       const { count: studentCount } = await supabase.from('students').select('*', { count: 'exact', head: true });
       const { count: roomCount } = await supabase.from('rooms').select('*', { count: 'exact', head: true });
       const { count: complaintCount } = await supabase.from('complaints').select('*', { count: 'exact', head: true });
-      const { data: payments } = await supabase.from('payments').select('amount, status, created_at');
+      const { data: payments } = await supabase.from('payments').select('amount, status, created_at, payment_type');
 
       // 2. Financial Logic
       const totalRevenue = payments?.filter(p => p.status === 'paid').reduce((acc, p) => acc + Number(p.amount), 0) || 0;
@@ -47,8 +47,23 @@ export function useDashboard(userId?: string) {
         const d = subMonths(new Date(), i);
         const start = startOfMonth(d);
         const end = startOfMonth(subMonths(d, -1));
-        const val = payments?.filter(p => p.status === 'paid' && new Date(p.created_at) >= start && new Date(p.created_at) < end).reduce((acc, p) => acc + Number(p.amount), 0) || 0;
-        stream.push({ name: format(d, 'MMM'), value: val });
+        
+        const monthPayments = payments?.filter(p => p.status === 'paid' && new Date(p.created_at) >= start && new Date(p.created_at) < end) || [];
+        
+        const val = monthPayments.reduce((acc, p) => acc + Number(p.amount), 0);
+        // Divide by 1000 for 'k' representation in the charts if needed, or just provide raw value. 
+        // Admin and Student dashboard use raw 'revenue', Finance dashboard uses 'hostel' and 'mess' and appends 'k'.
+        // Assuming raw values are intended, we provide them raw here.
+        const hostelVal = monthPayments.filter(p => p.payment_type === 'hostel_fee').reduce((acc, p) => acc + Number(p.amount), 0);
+        const messVal = monthPayments.filter(p => p.payment_type === 'mess_fee').reduce((acc, p) => acc + Number(p.amount), 0);
+        
+        stream.push({ 
+          name: format(d, 'MMM'), 
+          month: format(d, 'MMM'), // for FinanceDashboard XAxis
+          revenue: val, 
+          hostel: hostelVal / 1000, // FinanceDashboard appends 'k' to value, so we scale it down here for display
+          mess: messVal / 1000 
+        });
       }
       setRevenueData(stream);
 

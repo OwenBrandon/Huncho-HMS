@@ -82,22 +82,20 @@ export function useVisitors() {
   const searchStudents = async (queryText: string) => {
     if (!queryText || queryText.length < 2) return [];
     try {
+      // Use the active_student_rooms view which bypasses RLS on users/students
+      // and only returns students who actually have an active room allocation
       const { data, error } = await supabase
-        .from('students')
-        .select(`
-          id,
-          student_id,
-          user:users(full_name)
-        `)
-        .or(`student_id.ilike.%${queryText}%,user.full_name.ilike.%${queryText}%`)
+        .from('active_student_rooms')
+        .select('student_id, student_number, full_name')
+        .or(`full_name.ilike.%${queryText}%,student_number.ilike.%${queryText}%`)
         .limit(10);
-      
+        
       if (error) throw error;
-      
-      return data.map(s => ({
-        id: s.id,
-        student_id: s.student_id,
-        full_name: (s.user as any)?.full_name || 'Unknown'
+
+      return data.map((s: any) => ({
+        id: s.student_id, // Map to students.id for the check-in form
+        student_id: s.student_number,
+        full_name: s.full_name
       }));
     } catch (err) {
       console.error('Student Search Error:', err);

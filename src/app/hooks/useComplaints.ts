@@ -43,7 +43,8 @@ export function useComplaints() {
           return;
         }
       } else if (user.role === 'maintenance_staff') {
-        query = query.eq('assigned_to', user.id);
+        // Maintenance staff should see all complaints so they can pick them from the queue
+        // No additional filters needed since RLS allows them global read access
       }
 
       const { data, error } = await query;
@@ -136,6 +137,7 @@ export function useComplaints() {
   const acknowledgeComplaint = async (id: string) => {
     return updateComplaint(id, {
       status: 'in_progress',
+      assigned_to: user?.id, // Claim the ticket automatically
       acknowledged_at: new Date().toISOString()
     });
   };
