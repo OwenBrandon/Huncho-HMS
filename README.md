@@ -1,4 +1,4 @@
-# Huncho HMS — Hostel Management System
+# Landmark HMS — Hostel Management System
 
 A role-aware web platform for running a student hostel: rooms and allocations, fees and payments, the mess, visitors, complaints, attendance, and staff operations. It replaces paper registers and scattered spreadsheets with one system. Each of the seven staff and student roles sees only what it should, and the database itself enforces that through Row-Level Security.
 
